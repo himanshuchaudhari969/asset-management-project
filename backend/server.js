@@ -5,6 +5,9 @@ require('dotenv').config({ path: require('path').join(__dirname, '.env') });
 const authRoutes = require('./routes/authRoutes');
 const assetRoutes = require('./routes/assetRoutes');
 const bookingRoutes = require('./routes/bookingRoutes');
+const analyticsRoutes = require('./routes/analyticsRoutes');
+const notificationRoutes = require('./routes/notificationRoutes');
+const auditRoutes = require('./routes/auditRoutes');
 
 const app = express();
 
@@ -15,6 +18,9 @@ app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/assets', assetRoutes);
 app.use('/api/bookings', bookingRoutes);
+app.use('/api/analytics', analyticsRoutes);
+app.use('/api/notifications', notificationRoutes);
+app.use('/api/audit', auditRoutes);
 
 // Test route
 app.get('/', (req, res) => {

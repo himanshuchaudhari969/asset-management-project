@@ -1,4 +1,6 @@
 const pool = require('../db');
+const { logAction } = require('./auditController');
+const { createNotification } = require('./notificationController');
 
 const createBooking = async (req, res) => {
   const { asset_id, start_date, end_date, reason } = req.body;
@@ -14,6 +16,16 @@ const createBooking = async (req, res) => {
       'INSERT INTO bookings (user_id, asset_id, start_date, end_date, reason) VALUES ($1, $2, $3, $4, $5) RETURNING *',
       [req.user.id, asset_id, start_date, end_date, reason]
     );
+
+    // Audit log
+    await logAction(req.user.id, 'BOOKING_CREATED', `Asset: ${asset.rows[0].name}, Dates: ${start_date} to ${end_date}`);
+
+    // Admin ko notification
+    const admins = await pool.query("SELECT id FROM users WHERE role = 'admin'");
+    for (const admin of admins.rows) {
+      await createNotification(admin.id, `Naya booking request: ${asset.rows[0].name} by ${req.user.name}`);
+    }
+
     res.status(201).json(booking.rows[0]);
   } catch (err) {
     res.status(500).json({ message: 'Server error', error: err.message });
@@ -54,20 +66,35 @@ const getAllBookings = async (req, res) => {
 const updateBookingStatus = async (req, res) => {
   const { status } = req.body;
   try {
-    const booking = await pool.query('SELECT * FROM bookings WHERE id = $1', [req.params.id]);
+    const booking = await pool.query(
+      `SELECT b.*, a.name as asset_name FROM bookings b 
+       JOIN assets a ON b.asset_id = a.id 
+       WHERE b.id = $1`,
+      [req.params.id]
+    );
     if (booking.rows.length === 0) {
       return res.status(404).json({ message: 'Booking nahi mili' });
     }
+
     if (status === 'approved') {
       await pool.query('UPDATE assets SET available = available - 1 WHERE id = $1', [booking.rows[0].asset_id]);
     }
     if (status === 'returned') {
       await pool.query('UPDATE assets SET available = available + 1 WHERE id = $1', [booking.rows[0].asset_id]);
     }
+
     const updated = await pool.query(
       'UPDATE bookings SET status = $1 WHERE id = $2 RETURNING *',
       [status, req.params.id]
     );
+
+    // Audit log
+    await logAction(req.user.id, 'BOOKING_STATUS_UPDATED', `Booking ID: ${req.params.id}, Status: ${status}, Asset: ${booking.rows[0].asset_name}`);
+
+    // User ko notification
+    const statusMsg = status === 'approved' ? 'approve' : status === 'rejected' ? 'reject' : 'returned mark';
+    await createNotification(booking.rows[0].user_id, `Teri booking "${booking.rows[0].asset_name}" ko ${statusMsg} kar diya gaya!`);
+
     res.json(updated.rows[0]);
   } catch (err) {
     res.status(500).json({ message: 'Server error', error: err.message });
