@@ -7,6 +7,10 @@ A full-stack web app to manage shared assets and bookings. Built for Cult Open P
 - Frontend: https://asset-management-project-71ed.vercel.app/
 - Backend: https://asset-management-project-bmlf.onrender.com
 
+-## Demo video 
+
+https://drive.google.com/file/d/1_6dx9hUW1z1cTT1zLF1BNIuGPyvU2h16/view?usp=drive_link
+
 ## What it does
 
 Organizations like IIT Roorkee's Cultural Council manage a lot of shared equipment — cameras, audio systems, stage props etc. This platform makes it easier to track who has what, when it's due back, and how often things are being used.
