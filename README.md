@@ -2,6 +2,11 @@
 
 A full-stack web app to manage shared assets and bookings. Built for Cult Open Projects 2026 — IIT Roorkee Cultural Council.
 
+## for Login (Admin)-
+
+   email - test@testi.com
+   password - 123456
+   
 ## Live Demo
 
 - Frontend: https://asset-management-project-71ed.vercel.app/
@@ -10,6 +15,7 @@ A full-stack web app to manage shared assets and bookings. Built for Cult Open P
 -## Demo video 
 
 https://drive.google.com/file/d/1_6dx9hUW1z1cTT1zLF1BNIuGPyvU2h16/view?usp=drive_link
+
 
 ## What it does
 
